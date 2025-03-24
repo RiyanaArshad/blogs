@@ -1,0 +1,143 @@
+{% extends "blog/base_generic.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'categories' %}" class="text-decoration-none">
+                            <i class="fas fa-tags me-1"></i>Categories
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ category.name }}</li>
+                </ol>
+            </nav>
+            <div class="category-header text-center py-4">
+                <span class="fa-stack fa-3x mb-3">
+                    <i class="fas fa-circle fa-stack-2x text-primary opacity-25"></i>
+                    <i class="fas fa-folder-open fa-stack-1x text-primary"></i>
+                </span>
+                <h1 class="display-4">{{ category.name }}</h1>
+                <p class="lead text-muted mb-4">{{ category.description }}</p>
+                <div class="category-meta d-flex justify-content-center gap-4">
+                    <div class="text-center">
+                        <h4 class="h5 mb-1">{{ category.blog_set.count }}</h4>
+                        <small class="text-muted">Total Posts</small>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="h5 mb-1">{{ category.total_views|default:"0" }}</h4>
+                        <small class="text-muted">Total Views</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            {% if blogs %}
+            <h2 class="h3 mb-4">
+                <i class="fas fa-book-reader text-primary me-2"></i>Posts in this Category
+            </h2>
+            {% for blog in blogs %}
+            <div class="card shadow-sm border-0 hover-shadow mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="blog-categories">
+                            {% for cat in blog.categories.all %}
+                            <a href="{% url 'category-detail' cat.pk %}" class="badge bg-primary text-decoration-none me-2">
+                                <i class="fas fa-tag me-1"></i>{{ cat.name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">
+                            <i class="far fa-calendar-alt me-1"></i>{{ blog.post_date|date:"F d, Y" }}
+                        </small>
+                    </div>
+                    
+                    <h3 class="card-title h4">
+                        <a href="{{ blog.get_absolute_url }}" class="text-decoration-none text-dark hover-primary">
+                            {{ blog.title }}
+                        </a>
+                    </h3>
+                    
+                    <p class="card-text text-muted">{{ blog.content|truncatewords:50 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="author-info">
+                            <a href="{% url 'blogger-detail' blog.author.pk %}" class="text-decoration-none">
+                                <i class="fas fa-user-circle text-primary me-2"></i>
+                                <span class="text-dark">{{ blog.author }}</span>
+                            </a>
+                        </div>
+                        <div>
+                            <a href="{{ blog.get_absolute_url }}" class="btn btn-outline-primary">
+                                Read More <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="my-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ request.path }}?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ request.path }}?page={{ page_obj.next_page_number }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No posts have been added to this category yet.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-shadow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease;
+}
+.hover-primary:hover {
+    color: var(--bs-primary) !important;
+}
+.category-header {
+    background-color: #f8f9fa;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+.category-meta {
+    padding: 1rem;
+    background-color: rgba(255,255,255,0.5);
+    border-radius: 0.5rem;
+    display: inline-flex;
+}
+</style>
+{% endblock %}

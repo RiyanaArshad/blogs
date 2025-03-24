@@ -1,0 +1,196 @@
+{% extends "blog/base_generic.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            {% csrf_token %}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'blogs' %}" class="text-decoration-none">
+                            <i class="fas fa-book-reader me-1"></i>Blogs
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ blog.title }}</li>
+                </ol>
+            </nav>
+
+            <article class="blog-post">
+                <header class="blog-post-header mb-4">
+                    <h1 class="display-4 mb-3">{{ blog.title }}</h1>
+                    <div class="blog-meta d-flex justify-content-between align-items-center mb-4">
+                        <div class="author-info">
+                            <a href="{% url 'blogger-detail' blog.author.pk %}" class="text-decoration-none">
+                                <i class="fas fa-user-circle text-primary me-2"></i>
+                                <span class="text-dark">{{ blog.author }}</span>
+                            </a>
+                            <span class="text-muted mx-2">•</span>
+                            <span class="text-muted">
+                                <i class="far fa-calendar-alt me-1"></i>
+                                {{ blog.post_date|date:"F d, Y" }}
+                            </span>
+                        </div>
+                        <div class="blog-categories">
+                            {% for category in blog.categories.all %}
+                            <a href="{% url 'category-detail' category.pk %}" class="badge bg-primary text-decoration-none me-2">
+                                <i class="fas fa-tag me-1"></i>{{ category.name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </header>
+
+                <div class="blog-content mb-4">
+                    {{ blog.content|linebreaks }}
+                </div>
+
+                <div class="blog-actions border-top border-bottom py-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="like-section">
+                            {% if user.is_authenticated %}
+                            <button class="btn btn-outline-primary like-button" data-blog-id="{{ blog.id }}" data-liked="{{ liked_by_user|yesno:"true,false" }}">
+                                <i class="{% if liked_by_user %}fas{% else %}far{% endif %} fa-heart me-2"></i>
+                                <span class="like-count">{{ total_likes }}</span> Like{{ total_likes|pluralize }}
+                            </button>
+                            {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-outline-primary">
+                                <i class="far fa-heart me-2"></i>
+                                <span class="like-count">{{ total_likes }}</span> Like{{ total_likes|pluralize }}
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="share-buttons">
+                            <button class="btn btn-outline-secondary" onclick="copyToClipboard(window.location.href)">
+                                <i class="fas fa-share-alt me-2"></i>Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="comments-section">
+                    <h3 class="h4 mb-4">
+                        <i class="fas fa-comments text-primary me-2"></i>Comments
+                    </h3>
+
+                    {% if user.is_authenticated %}
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <form method="post" action="{% url 'blog-comment' blog.pk %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="comment" class="form-label">Add a comment</label>
+                                    <textarea class="form-control" id="comment" name="content" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Post Comment
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Please <a href="{% url 'login' %}">login</a> to add a comment.
+                    </div>
+                    {% endif %}
+
+                    {% if comments %}
+                    <div class="comments-list">
+                        {% for comment in comments %}
+                        <div class="comment card shadow-sm mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="comment-author">
+                                        <i class="fas fa-user-circle text-primary me-2"></i>
+                                        <span class="fw-bold">{{ comment.author }}</span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="far fa-clock me-1"></i>
+                                        {{ comment.post_date|date:"F d, Y" }}
+                                    </small>
+                                </div>
+                                <p class="card-text mb-0">{{ comment.content }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-light">
+                        <i class="far fa-comment-alt me-2"></i>No comments yet. Be the first to comment!
+                    </div>
+                    {% endif %}
+                </section>
+            </article>
+        </div>
+    </div>
+</div>
+
+<style>
+.blog-post {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+.blog-content {
+    font-family: Georgia, serif;
+}
+.comment {
+    transition: transform 0.2s ease;
+}
+.comment:hover {
+    transform: translateX(5px);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likeButton = document.querySelector('.like-button');
+    if (likeButton) {
+        likeButton.addEventListener('click', function() {
+            const blogId = this.dataset.blogId;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch('{% url "like-blog" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken
+                },
+                body: `blog_id=${blogId}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const likeCount = this.querySelector('.like-count');
+                const heartIcon = this.querySelector('i');
+                
+                likeCount.textContent = data.total_likes;
+                if (data.liked) {
+                    heartIcon.classList.remove('far');
+                    heartIcon.classList.add('fas');
+                    this.setAttribute('data-liked', 'true');
+                } else {
+                    heartIcon.classList.remove('fas');
+                    heartIcon.classList.add('far');
+                    this.setAttribute('data-liked', 'false');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while processing your like. Please try again.');
+            });
+        });
+    }
+});
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        // You could show a tooltip or toast here
+        alert('Link copied to clipboard!');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "blog/base_generic.html" %}
+
+{% block content %}
+<div class="hero-section text-center mb-5">
+    <div class="container">
+        <h1 class="display-4 mb-4">Welcome to DIY Blog</h1>
+        <p class="lead mb-4">Share your thoughts, discover great ideas, and connect with fellow bloggers.</p>
+        <div class="cta-buttons">
+            {% if user.is_authenticated %}
+                <a href="{% url 'blogs' %}" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-book-reader"></i> Start Reading
+                </a>
+            {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-user-plus"></i> Join Now
+                </a>
+                <a href="{% url 'blogs' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-book-reader"></i> Browse Blogs
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-blog fa-3x text-primary mb-3"></i>
+                <h3 class="card-title">{{ num_blogs }}</h3>
+                <p class="card-text">Blog Posts</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h3 class="card-title">{{ num_authors }}</h3>
+                <p class="card-text">Active Authors</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-tags fa-3x text-primary mb-3"></i>
+                <h3 class="card-title">{{ num_categories }}</h3>
+                <p class="card-text">Categories</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="features-section mt-5">
+    <h2 class="text-center mb-4">Why Choose DIY Blog?</h2>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="d-flex align-items-start">
+                <i class="fas fa-pen-fancy text-primary fa-2x me-3 mt-1"></i>
+                <div>
+                    <h4>Express Yourself</h4>
+                    <p>Share your stories, ideas, and expertise with our growing community of readers and writers.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="d-flex align-items-start">
+                <i class="fas fa-comments text-primary fa-2x me-3 mt-1"></i>
+                <div>
+                    <h4>Engage in Discussions</h4>
+                    <p>Connect with other bloggers through comments and meaningful discussions.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="d-flex align-items-start">
+                <i class="fas fa-search text-primary fa-2x me-3 mt-1"></i>
+                <div>
+                    <h4>Discover Content</h4>
+                    <p>Find interesting articles across various categories with our powerful search feature.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="d-flex align-items-start">
+                <i class="fas fa-user-circle text-primary fa-2x me-3 mt-1"></i>
+                <div>
+                    <h4>Build Your Profile</h4>
+                    <p>Create your personal brand with a customized author profile and bio.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

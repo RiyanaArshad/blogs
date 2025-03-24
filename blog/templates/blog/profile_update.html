@@ -1,0 +1,33 @@
+{% extends "blog/base_generic.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center">Update Your Profile</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.bio.id_for_label }}">Bio</label>
+                            {{ form.bio }}
+                            {% if form.bio.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.bio.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                            <a href="{% url 'blogger-detail' pk=request.user.blogauthor.pk %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

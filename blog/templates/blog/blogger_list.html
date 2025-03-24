@@ -1,0 +1,109 @@
+{% extends "blog/base_generic.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4 mb-4">
+                <i class="fas fa-users text-primary me-3"></i>Our Authors
+            </h1>
+            <p class="lead text-muted">Meet our talented community of writers and bloggers.</p>
+        </div>
+    </div>
+
+    {% if blogauthor_list %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for blogger in blogauthor_list %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 hover-shadow">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-user-circle fa-4x text-primary"></i>
+                    </div>
+                    <h3 class="card-title h4">
+                        <a href="{% url 'blogger-detail' blogger.pk %}" class="text-decoration-none text-dark hover-primary">
+                            {{ blogger.user.get_full_name|default:blogger.user.username }}
+                        </a>
+                    </h3>
+                    <p class="card-text text-muted">
+                        <i class="fas fa-pencil-alt me-2"></i>{{ blogger.bio|truncatewords:25 }}
+                    </p>
+                    <div class="author-stats d-flex justify-content-center gap-4 mb-3">
+                        <div class="text-center">
+                            <h4 class="h5 mb-1">{{ blogger.total_posts }}</h4>
+                            <small class="text-muted">Posts</small>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="h5 mb-1">{{ blogger.total_comments }}</h4>
+                            <small class="text-muted">Comments</small>
+                        </div>
+                    </div>
+                    <a href="{% url 'blogger-detail' blogger.pk %}" class="btn btn-outline-primary">
+                        View Profile <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Page navigation" class="my-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ request.path }}?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ request.path }}?page={{ page_obj.next_page_number }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>There are no authors yet.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.hover-shadow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease;
+}
+.hover-primary:hover {
+    color: var(--bs-primary) !important;
+}
+.author-stats {
+    border-top: 1px solid rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding: 1rem 0;
+    margin: 1rem 0;
+}
+</style>
+{% endblock %}

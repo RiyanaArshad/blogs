@@ -1,0 +1,30 @@
+{% extends "blog/base_generic.html" %}
+
+{% block content %}
+<h1>{{ blogauthor.user.username }}</h1>
+<div class="blogger-bio mb-4">
+    <h2>About</h2>
+    <p>{{ blogauthor.bio|linebreaks }}</p>
+</div>
+
+<div class="blogger-blogs">
+    <h2>Blog Posts</h2>
+    {% if blogauthor.blog_set.all %}
+        {% for blog in blogauthor.blog_set.all %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="card-title">
+                    <a href="{{ blog.get_absolute_url }}">{{ blog.title }}</a>
+                </h3>
+                <p class="card-text">{{ blog.content|truncatewords:30 }}</p>
+                <p class="card-text">
+                    <small class="text-muted">Posted on {{ blog.post_date|date:"F d, Y" }}</small>
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>This blogger hasn't written any posts yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "blog/base_generic.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4 mb-4">
+                <i class="fas fa-tags text-primary me-3"></i>Blog Categories
+            </h1>
+            <p class="lead text-muted">Explore our diverse collection of blog posts by category.</p>
+        </div>
+    </div>
+
+    {% if categories %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for category in categories %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 hover-shadow">
+                <div class="card-body text-center">
+                    <div class="category-icon mb-4">
+                        <span class="fa-stack fa-2x">
+                            <i class="fas fa-circle fa-stack-2x text-primary opacity-25"></i>
+                            <i class="fas fa-folder fa-stack-1x text-primary"></i>
+                        </span>
+                    </div>
+                    <h3 class="card-title h4">
+                        <a href="{% url 'category-detail' category.pk %}" class="text-decoration-none text-dark hover-primary">
+                            {{ category.name }}
+                        </a>
+                    </h3>
+                    <p class="card-text text-muted">
+                        {{ category.description|truncatewords:25 }}
+                    </p>
+                    <div class="category-stats d-flex justify-content-center gap-4 mb-3">
+                        <div class="text-center">
+                            <h4 class="h5 mb-1">{{ category.blog_count }}</h4>
+                            <small class="text-muted">Posts</small>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="h5 mb-1">{{ category.total_views|default:"0" }}</h4>
+                            <small class="text-muted">Views</small>
+                        </div>
+                    </div>
+                    <a href="{% url 'category-detail' category.pk %}" class="btn btn-outline-primary">
+                        Browse Posts <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3">
+                    <div class="d-flex justify-content-center">
+                        {% with recent_posts=category.blog_set.all|slice:":3" %}
+                        {% if recent_posts %}
+                        <div class="recent-posts small text-muted">
+                            <span class="d-block text-center mb-2">Recent Posts:</span>
+                            {% for post in recent_posts %}
+                            <a href="{{ post.get_absolute_url }}" class="d-block text-truncate text-muted text-decoration-none hover-primary mb-1" style="max-width: 200px;">
+                                <i class="fas fa-file-alt me-1"></i>{{ post.title }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Page navigation" class="my-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ request.path }}?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ request.path }}?page={{ page_obj.next_page_number }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No categories have been created yet.
+                {% if user.is_authenticated %}
+                <a href="/admin/blog/category/add/" class="alert-link">Create the first category!</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.hover-shadow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease;
+}
+.hover-primary:hover {
+    color: var(--bs-primary) !important;
+}
+.category-stats {
+    border-top: 1px solid rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding: 1rem 0;
+    margin: 1rem 0;
+}
+.recent-posts {
+    max-height: 100px;
+    overflow-y: auto;
+}
+.recent-posts::-webkit-scrollbar {
+    width: 4px;
+}
+.recent-posts::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.recent-posts::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+.recent-posts::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
+{% endblock %}
